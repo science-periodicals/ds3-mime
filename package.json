@@ -1,6 +1,6 @@
 {
   "name": "@scipe/ds3-mime",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "DS3 MIME",
   "main": "index.js",
   "scripts": {
