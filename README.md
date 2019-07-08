@@ -1,12 +1,12 @@
-# ds3-mime
-
-[![CircleCI](https://circleci.com/gh/scienceai/ds3-mime.svg?style=svg)](https://circleci.com/gh/scienceai/ds3-mime)
+# @scipe/ds3-mime
 
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
 DS3 MIME
 
+Note: this module is auto published to npm on CircleCI. Only run `npm version
+patch|minor|major` and let CI do the rest.
 
 ```js
-import ds3Mime from '@scienceai/ds3-mime';
+import ds3Mime from '@scipe/ds3-mime';
 ```

@@ -1,32 +1,55 @@
 version: 2
 jobs:
-  build:
-    docker:
-      - image: circleci/node:7.10
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mongo:3.4.4
-
+  test:
     working_directory: ~/ds3-mime
-
+    docker:
+      - image: circleci/node:dubnium
     steps:
       - checkout
-
-      # Download and cache dependencies
+      - run: echo '//registry.npmjs.org/:_authToken='$NPM_PRIVATE_AUTH_TOKEN > $HOME/.npmrc
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
-      - run: npm install
-
+            - v1-node_modules-{{ checksum "package-lock.json" }}
+            - v1-node_modules-
+      - run:
+          command: npm install
+          no_output_timeout: 5m
       - save_cache:
+          key: v1-node_modules-{{ checksum "package-lock.json" }}
           paths:
             - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-
-      # run tests!
       - run: npm test
+      - persist_to_workspace:
+          root: ~/ds3-mime
+          paths: .
+
+  publish:
+    working_directory: ~/ds3-mime
+    docker:
+      - image: circleci/node:dubnium
+    steps:
+      - attach_workspace:
+          at: ~/ds3-mime
+      - run:
+          name: Authenticate with registry
+          command: echo '//registry.npmjs.org/:_authToken='$NPM_PRIVATE_AUTH_TOKEN > $HOME/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
+
+workflows:
+  version: 2
+  test-publish:
+    jobs:
+      - test:
+          filters:  # required since `publish` has tag filters AND requires `test`
+            tags:
+              only: /.*/
+      - publish:
+          requires:
+            - test
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
